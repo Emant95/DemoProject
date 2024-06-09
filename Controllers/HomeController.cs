@@ -28,6 +28,10 @@ namespace DemoProject.Controllers
             string Usertype = loginData.Usertype;
             if (Uname == "suman" && Password == "12345")
             {
+                var em = new List<exerciseModel>();
+                exerciseModel em1 = new exerciseModel();
+                em = em1.GetExercises("");
+                ViewData["MyData"] = em;
                 return View("LandingPage", loginData);
             }
             else
@@ -56,6 +60,13 @@ namespace DemoProject.Controllers
             string instructions = "";
             //database call
             //datecheck
+            var datechk = DateTime.Today.Month;
+            exerciseModel em = new exerciseModel();
+            days monthname = (days)datechk;
+
+            int hy = (int)datechk;
+
+            var stringcc = (days)(Enum.GetValues(e.GetType())).GetValue(datechk);
 
 
             instructions = Task.Run(() => GETMYEXERCISE(exercisetype)).Result;
@@ -75,33 +86,38 @@ namespace DemoProject.Controllers
             //    var exercise = myselectedexercise[0].ToString();
             //    instructions = Task.Run(() => GETMYEXERCISE(exercisetype)).Result;
             //}
-
-            foreach (var items in myselectedexercise)
+            string commaSeparatedString = string.Join(",", myselectedexercise);
+            exerciseModel em1 = new exerciseModel();
+            exerciseDetailsall = em1.GetExercises(commaSeparatedString);
+            if (exerciseDetailsall.Count < 10)
             {
-                string apiUrl = "https://api.api-ninjas.com/v1/exercises?muscle=" + items;
-                string apiKey = "d6EUgg//bUf/UiYp4RGUjw==viZGhUBssgqBS4Kn";
-                var exerciseDetails = new List<exerciseModel>();
-                //to add condition to call db
-                using (var httpClient = new HttpClient())
+                foreach (var items in myselectedexercise)
                 {
-                    httpClient.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
-                    var response = await httpClient.GetAsync(apiUrl);
-                    var a = (double)4;
-                    if (response.IsSuccessStatusCode)
+                    string apiUrl = "https://api.api-ninjas.com/v1/exercises?muscle=" + items;
+                    string apiKey = "d6EUgg//bUf/UiYp4RGUjw==viZGhUBssgqBS4Kn";
+                    var exerciseDetails = new List<exerciseModel>();
+                    //to add condition to call db
+                    using (var httpClient = new HttpClient())
                     {
-                        var responseContent = await response.Content.ReadAsStringAsync();
+                        httpClient.DefaultRequestHeaders.Add("X-Api-Key", apiKey);
+                        var response = await httpClient.GetAsync(apiUrl);
+                        var a = (double)4;
+                        if (response.IsSuccessStatusCode)
+                        {
+                            var responseContent = await response.Content.ReadAsStringAsync();
 
-                        exerciseDetails = JsonConvert.DeserializeObject<List<exerciseModel>>(responseContent);
-                        List<string> equipmentlist = new List<string>();
-                        equipmentlist = exerciseDetails.Select(x => x.equipment.ToString()).Distinct().ToList();
-                        exerciseModel em = new exerciseModel();
-                        int inserttest = em.InsertexerciseData(exerciseDetails);
-                        exerciseDetailsall.AddRange(exerciseDetails);
-                    }
-                    else
-                    {
-                        return "Nothing Found";
+                            exerciseDetails = JsonConvert.DeserializeObject<List<exerciseModel>>(responseContent);
+                            List<string> equipmentlist = new List<string>();
+                            equipmentlist = exerciseDetails.Select(x => x.equipment.ToString()).Distinct().ToList();
+                            exerciseModel em = new exerciseModel();
+                            int inserttest = em.InsertexerciseData(exerciseDetails);
+                            exerciseDetailsall.AddRange(exerciseDetails);
+                        }
+                        else
+                        {
+                            return "Nothing Found";
 
+                        }
                     }
                 }
             }

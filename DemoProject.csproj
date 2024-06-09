@@ -176,6 +176,8 @@
     <Content Include="Views\Home\Index.cshtml" />
     <Content Include="Views\Home\LandingPage.cshtml" />
     <Content Include="Views\UserRegister\SignUp.cshtml" />
+    <Content Include="Views\Exerciselist.cshtml" />
+    <Content Include="Views\exercisedetail.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />

@@ -1,8 +1,25 @@
 ﻿@using DemoProject.Models
+@using DemoProject.Models.HomeModels
 @model LoginData
 @{
     Layout = null;
     var test = Model.Username.ToString();
+    var testmodel = new List<exerciseModel>();
+    var exmodel = ViewData["MyData"] as List<exerciseModel>;
+    var castedobj = (List<exerciseModel>)exmodel;
+
+    foreach (exerciseModel item in exmodel)
+    {
+        if (item.updateddate != DateTime.Now.ToString())
+        {
+            exmodel.Remove(item);
+        }
+    }
+    var day = DateTime.Now.Day;
+    exerciseModel em = new exerciseModel();
+    //em.enum(days);
+    days dayname = (days)day;
+    exmodel = exmodel.Where(item => item.difficulty == "Easy" && item.type == dayname.ToString()).ToList();
 
 }
 
@@ -40,7 +57,8 @@
                                 '<td>' + obj.muscle + '</td>' +
                                 '<td>' + obj.equipment + '</td>' +
                                 '<td>' + obj.difficulty + '</td>' +
-                                '<td>' + obj.instructions + '</td>' +
+                                /*'<td>' + obj.instructions + '</td>' +*/
+                                '<td> <button type="button" class="btn btn-primary" data-bind="' + obj.muscle + '" data-instructions="' + obj.instructions + '" data-bs-toggle="modal" data-bs-target="#staticBackdrop">SEE Exercise</button> </td>' +
                                 // Add more columns as needed
                                 '</tr>';
                             $('#myTable tbody').append(row);
@@ -66,6 +84,15 @@
                         alert('Ajax Call Error')
 
                 });
+            });
+            $('#staticBackdrop').on('show.bs.modal', function (event) {
+                debugger
+                var button = $(event.relatedTarget); // Button that triggered the modal
+                var instructions = button.data('instructions'); // Extract info from data-* attributes
+                var muscle = button.data('bind'); // Extract info from data-* attributes
+                var modal = $(this);
+                modal.find('.modal-header').text(muscle);
+                modal.find('.modal-body').text(instructions);
             });
         });
         $("btnparagraph").on('click', function () {
@@ -118,6 +145,7 @@
 
 
 
+        //data('bind')
 
 
 
@@ -164,8 +192,72 @@
         </div>
         <button type="button" id="Getexercise">Get Selected Exercise</button>
     </form>
+    <input type="hidden" id="hdninstruction" name="hdninstructionname" value="hello world">
 
-    <table id="myTable">
+    @Html.Partial("../Exerciselist")
+    @*<p id="instpid" hidden="hidden">your instrucetions here.</p>*@
+
+    <!-- Button trigger modal -->
+    <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+        Launch static backdrop modal
+    </button>
+
+    <!-- Modal -->
+    <div class="modal fade" id="staticBackdrop" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="staticBackdropLabel"></h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body" id="modecontent">
+                    <!--This is space for paragraph-->
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary">Understood</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br /><p><br /></p>
+    <!--<table border="1">
+        <tr>
+            <td>Column 1</td>
+            <td>Column 2</td>
+            <td>Column 3</td>
+            <td>Button col</td>
+        </tr>
+        <tr>
+            <td>
+                Row 1-1
+            </td>
+            <td>Row 1-2</td>
+            <td>Row 1-3</td>
+            <td>-->
+    @*<button type="button" class="btn btn-primary"  id="col1btn">Understood</button>*@
+    <!--<button type="button" class="btn btn-primary" data-bind="Hello Friends" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    Launch static Popup
+                </button>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                Row 2-1
+            </td>
+            <td>Row 2-2</td>
+            <td>Row 2-3</td>
+            <td>
+                <button type="button" class="btn btn-primary" data-bind="Hello Friends" data-bs-toggle="modal" data-bs-target="#staticBackdrop">
+                    Launch static Popup
+                </button>
+            </td>
+        </tr>
+    </table>-->
+    @*event listener*@
+
+
+    <table class="table table-striped">
         <thead>
             <tr>
                 <th>name</th>
@@ -177,9 +269,22 @@
             </tr>
         </thead>
         <tbody>
-            <!-- Table body will be populated dynamically -->
+            @{ foreach (var items in exmodel)
+                {
+                    <tr>
+                        <td>@items.name</td>
+                        <td>@items.type</td>
+                        <td>@items.muscle</td>
+                        <td>@items.equipment</td>
+                        <td>@items.difficulty</td>
+                        <td>@items.instructions</td>
+                    </tr>
+}
+            }
         </tbody>
     </table>
-    @*<p id="instpid" hidden="hidden">your instrucetions here.</p>*@
+
+    @*@Html.Partial("../exercisedetail")*@
+
 </BODY>
 </HTML>
